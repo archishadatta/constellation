@@ -9,6 +9,7 @@ const App = () => {
   };
 
   const observingDate = new Date();  // Use the current date
+  const J2000 = new Date(Date.UTC(2000, 0, 1, 12, 0, 0, 0)); //J2000 epoch date
 
   // Function to calculate LST
   const calculateLST = (latitude, longitude, observingDate) => {
@@ -88,12 +89,66 @@ const App = () => {
     setVisibleStars(visibleStars);
   }, [observerLocation, observingDate]);
 
+  function RAToDeg(ra){
+    const parts = ra.split(':');
+    const hours = parseInt(parts[0]);
+    const minutes = parseInt(parts[1]);
+    const seconds = parseFloat(parts[2]);
+    return (hours + minutes/60 + seconds/3600) * 15;
+  }
+  function DecToDeg(dec){
+    const parts = dec.substr(1).split(":");
+    const sign = dec[0];
+    const deg = parseInt(parts[0]);
+    const arcminutes = parseInt(parts[1]);
+    const arcseconds = parseFloat(parts[2]);
+    return (sign == "-" ? -1:1) * (deg + arcminutes/60 + arcseconds/3600);
+  }
+
+  function calcLST(longitude, date){
+    //LST = 100.46 + 0.985647*d + long + 15 * UT
+    const uniTime = date.getUTCHours() + date.getUTCMinutes()/60 + date.getUTCSeconds()/3600;
+    const dUniTime = uniTime/24 * 10;
+    const daysSinceEpoch = (date.getTime() - J2000.getTime())/(24 * 60 * 60 * 1000);
+    const LSTDeg = 100.46 + 0.985647 * daysSinceEpoch + longitude + 15 * dUniTime;
+    return LSTDeg % 360;
+  }
+
+  function isVisible(dec, latitude){
+    if(Math.abs(latitude - dec) > 0){
+      return -1; //never visible
+    }
+    if(Math.abs(latitude - dec) > 90){
+      return 1; //always visible
+    }
+    return 0;
+  }
+  function calcAltAz(ra, dec, latitude, longitude, date){
+    const hourAngle = (calcLST(longitude, date) - ra) * Math.PI/180;
+    dec *= Math.PI/180;
+    latitude *= Math.PI/180;
+    let alt = Math.sin(dec) * Math.sin(latitude);
+    alt += Math.cos(dec) * Math.cos(latitude) * Math.cos(hourAngle);
+    alt = Math.asin(alt);
+    let az = Math.sin(dec) - Math.sin(alt) * Math.sin(latitude);
+    az /= Math.cos(alt) * Math.cos(latitude);
+    az = Math.acos(az);
+    return [alt, az];
+  }
+
+  const ra = RAToDeg("18:37:43.7");
+  const dec = DecToDeg("+38:48:33.5");
+  const result = calcAltAz(ra, dec, observerLocation.latitude, observerLocation.longitude, observingDate);
+  //at like 10/19/23, 10:07 PM, it should be 296 degrees (azimuth) and +36 degrees (altitude)
+  //should be 
   return (
     <div className="App">
       <header className="App-header">
         <p>
           wow, constellations are so cool!
         </p>
+        <p>RA: {ra}, Dec: {dec}</p>
+        <p>Altitude: {(result[0] * 180/Math.PI).toFixed(3)}, Azimuth: {(result[1] * 180/Math.PI).toFixed(3)}</p>
         <div>
           <h2>visible Stars:</h2>
           <ul>
