@@ -1,38 +1,70 @@
-.App {
-  text-align: center;
+/* Constants */
+:root {
+  --text-color: #E1E4FF;
+  --bg-color: #020525;
+}
+/* Background */
+.star-bg{
+  background-color: var(--bg-color);
+  background-image: 
+    radial-gradient(circle at top left, rgba(121,181,241, 0.5) 0%, var(--bg-color) 50%, transparent),
+    radial-gradient(ellipse at bottom right, rgba(140,53,120, 0.5) 0%, var(--bg-color) 70%, transparent);
+  /* background-size: 100px 100px; Adjust the size as needed */
+  background-repeat: no-repeat;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.star {
+  position: absolute;
+  background-color: var(--text-color);
+  border-radius: 50%;
+  width: 2px;
+  height: 2px;
+  animation: twinkle 3s infinite;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* Keyframes for the twinkling effect */
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.landing-container {
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 5vw;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-items: center;
 }
 
-.App-link {
-  color: #61dafb;
+.landing {
+ 
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Title */
+#title {
+  color: var(--text-color);
+  font-family: 'Technos';
+  font-size: calc(20px + 2.5vw);
+  margin: 0;
+}
+
+/* Links */
+.text-btn {
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-color);
+  display: block;
+  width: fit-content;
+  font-size: calc(10px + 0.75vw);
+  margin: 1vw 0;
+}
+
+.text-btn::before {
+  content: ">";
+  margin-right: 1rem;
 }
