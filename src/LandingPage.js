@@ -9,12 +9,12 @@ function LandingPage() {
         const container = document.getElementsByClassName('star-bg')[0];
     
         // Generate stars and append them to the container
-        for (let i = 0; i < 300; i++) {
+        for (let i = 0; i < 200; i++) {
             const star = document.createElement('div');
             star.classList.add('star');
 
             // Random size between 0.5px and 2px
-            const size = 0.5 + Math.random() * 1.5;
+            const size = 1 + Math.random() * 2;
             star.style.width = `${size}px`;
             star.style.height = `${size}px`;
 
