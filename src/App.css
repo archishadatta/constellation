@@ -39,6 +39,12 @@
   margin: 1vw 0;
 }
 
+.small.text-btn {
+  font-size: calc(10px + 0.5vw);
+  display: inline;
+  margin: 1vw 3vw;
+}
+
 .text-btn:hover {
   cursor: pointer;
 }
@@ -174,4 +180,104 @@ button {
   justify-content: center;
   width: 100%;
   /* height: 100%; */
+}
+
+/* CONSTELLATION PAGE */
+
+/* Star Menu */
+.star-menu {
+  z-index: 5;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-color);
+  font-size: calc(8px + 0.5vw);
+  text-decoration: none;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: grid;
+  justify-content: end;
+  border-top: solid 1.5px var(--text-color);
+  backdrop-filter: blur(2px);
+
+
+}
+
+.star-menu-content {
+  padding: 2vw;
+  width: fit-content;
+}
+
+/* Modal */
+.modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background-color: var(--bg-color);
+  /* height: fit-content; */
+  border: solid 1px black;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-color);
+  font-size: calc(10px + 0.5vw);
+  padding: 5vw;
+  border: solid 1px var(--text-color);
+  border-radius: 1vw;
+}
+
+.modal-title {
+  /* border-bottom: solid 1px var(--text-color); */
+  color: var(--text-color);
+  font-family: 'Technos';
+  font-size: calc(20px + 1.5vw);
+  padding-bottom: 2vw;
+}
+
+.modal-section {
+  margin: 1vw 0;
+}
+
+.input {
+  /* margin-left: 1vw; */
+  margin-top: 0.5vw;
+  padding: 0.5vw;
+  width: 100%;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--bg-color);
+  background-color: var(--text-color);
+  border: none;
+  border-radius: 1px;
+  font-size: calc(10px + 0.5vw);
+}
+
+.modal-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: calc(10px + 0.5vw);
+  border: solid 1px var(--text-color);
+  padding: 0.5vw 1vw;
+  margin-top: 2vw;
+}
+
+.modal-btn.primary {
+  background-color: var(--text-color);
+  color: var(--bg-color);
+}
+
+.modal-btn.secondary {
+  color: var(--text-color);
+  background-color: var(--bg-color);
+}
+
+.modal-btn-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
