@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import { starData } from "./starCatalog";
 import { Link } from 'react-router-dom';
 import { RiHome2Fill  } from 'react-icons/ri'; // Import the home icon
-import { Modal, Button, Form } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 
 
 // import * as d3 from 'd3-geo';
@@ -28,9 +28,9 @@ function ConstellationPage() {
   };
 
   // Star arrays
-  let geoConstellations = [];
+  // let geoConstellations = [];
   let starsMag = [];
-  var bgRGB = d3.rgb('#020525')
+  // var bgRGB = d3.rgb('#020525')
 
 
   // Filter stars by magnitude
@@ -360,8 +360,7 @@ function ConstellationPage() {
   };
 
 }
-
-, []);
+);
 
   return (
     <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>

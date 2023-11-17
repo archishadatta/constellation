@@ -246,10 +246,10 @@ function GalleryPage() {
     // Calculate the number of stars based on the container size
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
-    const totalStars = Math.round((containerWidth * containerHeight) / 2000); // Adjust this factor based on density
+    const totalStars = Math.round((containerWidth * containerHeight) / 3000); // Adjust this factor based on density
 
     // Generate stars and append them to the container
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < totalStars; i++) {
         const star = document.createElement('div');
         star.classList.add('star');
 
