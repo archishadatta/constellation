@@ -20,7 +20,10 @@ function DrawingPage() {
                     starCalc.observingDate);
     return {
       type: 'Point',
-      coordinates: coords
+      coordinates: coords,
+      properties: {
+        mag: star.MAG
+      }
     }
   })
 
@@ -30,17 +33,31 @@ function DrawingPage() {
   let wait = false;
 
   //points
-  let points = []; //FILL WITH STARS
+  let points = []; //filled with stars later
   let highlighted = [];
 
   //drawing points
   let curComponent = -1;
   let drawingPts = [];
 
+  //some helper math functions
+  function sqDist(x1, y1, x2, y2){
+    return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+  }
+  function linearMap(x, min1, max1, min2, max2){
+    return (x - min1)/(max1 - min1) * (max2 - min2) + min2;
+  }
+
   //canvas drawing functions
-  function plotPoint(ctx, x, y, col="black", s=2){
+  function circle(ctx, x, y, r){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.closePath();
+  }
+  function plotPoint(ctx, x, y, col="black", s=2, glow=false){
     ctx.fillStyle = col;
-    ctx.fillRect(x - s/2, y - s/2, s, s);
+    circle(ctx, x, y, s);
   }
   function plotPath(ctx, pts, col="black", strokeWidth=1){
     if(pts.length === 0){
@@ -64,29 +81,30 @@ function DrawingPage() {
     const projection = d3.geoStereographic().translate([canvas.width/2, canvas.height/2]).scale(600).rotate([0, -90, 0]);
     points = stars.map(function(star){
       const coords = projection(star.coordinates);
-      return { x: coords[0], y: coords[1] };
+      return { 
+        x: coords[0], 
+        y: coords[1], 
+        size: linearMap(star.properties.mag, 0, 4, 3, 1)
+      };
     });
   }
   function drawCanvas(canvas, ctx){
     ctx.clearRect(0,0, canvas.width, canvas.height);
 
+    //drawing the path
+    plotPath(ctx, drawingPts, "rgba(2, 5, 37, 0.5)");
+
     //drawing points
     for(let i = 0; i < points.length; i++){
       if(highlighted.indexOf(points[i]) !== -1){
-        plotPoint(ctx, points[i].x, points[i].y, "red", 4);
+        plotPoint(ctx, points[i].x, points[i].y, "rgb(121,181,241)", 3.5);
       }
       else {
-        plotPoint(ctx, points[i].x, points[i].y, "blue");
+        plotPoint(ctx, points[i].x, points[i].y, "#020525", points[i].size);
       }
     }
-    
-    //getting drawing?
-    plotPath(ctx, drawingPts);
   }
-
-  function sqDist(x1, y1, x2, y2){
-    return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
-  }
+  
   function directionChange(prevX2, prevY2, prevX1, prevY1, curX, curY){
     let pathLen = Math.sqrt(sqDist(prevX1, prevY1, curX, curY)) + Math.sqrt(sqDist(prevX2, prevY2, prevX1, prevY1));
     let straightPath = Math.sqrt(sqDist(prevX2, prevY2, curX, curY));
