@@ -36,6 +36,7 @@ function DrawingPage() {
     ctx.strokeStyle = col;
     ctx.lineWidth = strokeWidth;
     for(let i = 0; i < pts.length; i++){
+      if(pts[i].length === 0){ continue; }
       ctx.moveTo(pts[i][0].x, pts[i][0].y);
       for(let j = 1; j < pts[i].length; j++){
         ctx.lineTo(pts[i][j].x, pts[i][j].y);
@@ -89,16 +90,21 @@ function DrawingPage() {
 
   //handling drag for users
   function updateOnDrag(e, canvas, ctx){
+    //get current points
+    const scaleFactor = 1280/canvas.offsetWidth;
+    const mouseX = e.offsetX * scaleFactor;
+    const mouseY = e.offsetY * scaleFactor;
+
     //updating highlighted points
     let factor = 1.2;
     if(drawingPts[curComponent].length >= 2){
-      factor = directionChange(prevX2, prevY2, prevX1, prevY1, e.offsetX, e.offsetY);
+      factor = directionChange(prevX2, prevY2, prevX1, prevY1, mouseX, mouseY);
     }
     let threshold = Math.max(225, 225 * factor * factor);
     updateHighlight(e.offsetX, e.offsetY, threshold);
 
     //adding points
-    drawingPts[curComponent].push({x : e.offsetX, y: e.offsetY});
+    drawingPts[curComponent].push({x : mouseX, y: mouseY });
 
     //draw updated canvas
     drawCanvas(canvas, ctx);
@@ -106,12 +112,12 @@ function DrawingPage() {
     //updating stuff
     prevX2 = prevX1;
     prevY2 = prevY1;
-    prevX1 = e.offsetX;
-    prevY1 = e.offsetY;
+    prevX1 = mouseX;
+    prevY1 = mouseY;
   }
 
   //reset drawing
-  function reset(){
+  function reset(canvas, ctx){
     prevX2 = null;
     prevY2 = null;
     prevX1 = null;
@@ -122,6 +128,9 @@ function DrawingPage() {
     curComponent = -1;
     mouseDown = false;
     wait = false;
+
+    //redraw cleared canvas
+    drawCanvas(canvas, ctx);
   }
 
   //functions handling mouse movement
@@ -173,16 +182,23 @@ function DrawingPage() {
 
     //canvas
     const canv = canvRef.current;
-    const ctx = canv.getContext("2d");
+    const ctx = canv.getContext('2d');
 
     canv.onmousedown = handleMouseDown;
     canv.onmouseup = handleMouseUp;
     canv.onmouseleave = handleMouseUp;
     const moveHandler = function(e){
       handleMouseMove(e, canv, ctx);
-    }
+    };
     canv.addEventListener("mousemove", moveHandler);
     drawCanvas(canv, ctx);
+
+    //clear canvas
+    const clearBtn = document.getElementById("clear-btn");
+    const clearHandler = function(){
+      reset(canv, ctx);
+    };
+    clearBtn.addEventListener("click", clearHandler);
 
     //clean up event listeners
     return () => {
@@ -190,6 +206,7 @@ function DrawingPage() {
       canv.removeEventListener("mouseup", handleMouseUp);
       canv.removeEventListener("mouseleave", handleMouseUp);
       canv.removeEventListener("mousemove", moveHandler);
+      clearBtn.removeEventListener("click", clearHandler);
     };
   }, []);
 
@@ -201,14 +218,14 @@ function DrawingPage() {
       <div className='drawing'>
         <div className='drawing-sidebar'>
           <p>Draw your constellation here...</p>
-          <button className='text-btn'>
+          <button className='text-btn' id = 'clear-btn'>
               <span>Clear</span>
           </button>
           <Link to='/constellation' className='text-btn'>
                 <span>Map to sky</span>
           </Link>
         </div>
-        <canvas className='drawing-whiteboard' ref = {canvRef}>
+        <canvas className='drawing-whiteboard' ref = {canvRef} width = "1280" height = "675">
 
         </canvas>
       </div>
