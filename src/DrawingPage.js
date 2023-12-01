@@ -1,6 +1,10 @@
 import {React, useEffect} from 'react';
 import { Link } from 'react-router-dom';
-import { RiHome2Fill  } from 'react-icons/ri'; // Import the home icon
+import { RiHome2Fill  } from 'react-icons/ri'; // Import the home icon]
+
+import * as starCalc from "./starCalculations.mjs";
+import * as d3 from 'd3';
+import { starData } from "./starCatalog";
 
 function DrawingPage() {
   useEffect(() => {
@@ -42,9 +46,9 @@ function DrawingPage() {
                 <span>Map to sky</span>
           </Link>
         </div>
-        <div className='drawing-whiteboard'>
+        <canvas className='drawing-whiteboard'>
 
-        </div>
+        </canvas>
       </div>
       
     </div>

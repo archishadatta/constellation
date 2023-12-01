@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { starData } from "./starCatalog";
 import { Link } from 'react-router-dom';
-// import { RiHome2Fill  } from 'react-icons/ri'; // Import the home icon
+import { RiHome2Fill  } from 'react-icons/ri'; // Import the home icon
 import { Button, Form } from 'react-bootstrap';
 import * as starCalc from "./starCalculations.mjs";
 
@@ -388,7 +388,7 @@ function ConstellationPage() {
   return (
     <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
       <Link to="/" className="home-link">
-        {/* <RiHome2Fill  className="home-icon" /> */}
+        {<RiHome2Fill  className="home-icon" />}
       </Link>
 
       { <div className='star-menu'>      
