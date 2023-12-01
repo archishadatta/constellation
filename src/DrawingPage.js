@@ -127,7 +127,14 @@ function DrawingPage() {
     if(minInd === -1){
       return;
     }
-    if(lastPt === null || sqDist(lastPt.x, lastPt.y, points[minInd].x, points[minInd].y) > threshold * 4 || minDist < 100){
+    if(lastPt === null){
+      highlighted.push(points[minInd]);
+      return;
+    }
+    else if(equal(lastPt.x, points[minInd].x) && equal(lastPt.y, points[minInd].y)){
+      return;
+    }
+    else if(sqDist(lastPt.x, lastPt.y, points[minInd].x, points[minInd].y) > threshold || minDist < 100){
       highlighted.push(points[minInd]);
     }
   }
