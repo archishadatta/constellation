@@ -47,6 +47,9 @@ function DrawingPage() {
   function linearMap(x, min1, max1, min2, max2){
     return (x - min1)/(max1 - min1) * (max2 - min2) + min2;
   }
+  function equal(a, b, threshold=0.001){
+    return Math.abs(a - b) < threshold;
+  }
 
   //canvas drawing functions
   function circle(ctx, x, y, r){
@@ -140,12 +143,7 @@ function DrawingPage() {
   }
 
   //handling drag for users
-  function updateOnDrag(e, canvas, ctx){
-    //get current points
-    const scaleFactor = 1280/canvas.offsetWidth;
-    const mouseX = e.offsetX * scaleFactor;
-    const mouseY = e.offsetY * scaleFactor;
-
+  function updateOnDrag(mouseX, mouseY, canvas, ctx){
     //updating highlighted points
     let factor = 1.2;
     if(drawingPts[curComponent].length >= 2){
@@ -199,15 +197,19 @@ function DrawingPage() {
     curComponent++;
     drawingPts.push([]);
   }
-  function handleMouseMove(e, canvas, ctx){
+  function scaleMouse(x, y, canvas){
+    const scaleFactor = 1280/canvas.offsetWidth;
+    return [x * scaleFactor, y * scaleFactor];
+  }
+  function handleMouseMove(mouseX, mouseY, canvas, ctx){
     if(!mouseDown){
       return;
     }
     if(!wait){
-      updateOnDrag(e, canvas, ctx);
+      updateOnDrag(mouseX, mouseY, canvas, ctx);
       wait = true;
     }
-    if((prevX1 === null) || sqDist(prevX1, prevY1, e.offsetX, e.offsetY) >= 36){
+    if((prevX1 === null) || sqDist(prevX1, prevY1, mouseX, mouseY) >= 36){
       wait = false;
     }
   }
@@ -244,11 +246,25 @@ function DrawingPage() {
     setUpStars(canv);
     canv.onmousedown = handleMouseDown;
     canv.onmouseup = handleMouseUp;
-    const moveHandler = function(e){
-      handleMouseMove(e, canv, ctx);
+    const mouseMoveHandler = function(e){
+      const mousePos = scaleMouse(e.offsetX, e.offsetY, canv);
+      handleMouseMove(mousePos[0], mousePos[1], canv, ctx);
     };
     //canv.addEventListener("mouseout", handleMouseUp);
-    canv.addEventListener("mousemove", moveHandler);
+    canv.addEventListener("mousemove", mouseMoveHandler);
+
+    //handling touch drag
+    const dragMoveHandler = function(e){
+      const pos = scaleMouse(e.touches[0].pageX - canv.offsetLeft + canv.scrollLeft, 
+                            e.touches[0].pageY - canv.offsetTop + canv.scrollTop,
+                            canv);
+      handleMouseMove(pos[0], pos[1], canv, ctx);
+    }
+    canv.addEventListener("touchstart", handleMouseDown);
+    canv.addEventListener("touchend", handleMouseUp);
+    canv.addEventListener("touchmove", dragMoveHandler);
+
+    //initial drawing
     drawCanvas(canv, ctx);
 
     //clear canvas
@@ -263,8 +279,12 @@ function DrawingPage() {
       canv.removeEventListener("mousedown", handleMouseDown);
       canv.removeEventListener("mouseup", handleMouseUp);
       //canv.removeEventListener("mouseout", handleMouseUp);
-      canv.removeEventListener("mousemove", moveHandler);
+      canv.removeEventListener("mousemove", mouseMoveHandler);
       clearBtn.removeEventListener("click", clearHandler);
+
+      canv.removeEventListener("touchstart", handleMouseDown);
+      canv.removeEventListener("touchend", handleMouseUp);
+      canv.removeEventListener("touchmove", dragMoveHandler);
     };
   }, []);
 
