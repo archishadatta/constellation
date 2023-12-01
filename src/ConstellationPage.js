@@ -3,9 +3,9 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { starData } from "./starCatalog";
 import { Link } from 'react-router-dom';
-import { RiHome2Fill  } from 'react-icons/ri'; // Import the home icon
+// import { RiHome2Fill  } from 'react-icons/ri'; // Import the home icon
 import { Button, Form } from 'react-bootstrap';
-
+import * as starCalc from "./starCalculations.mjs";
 
 // import * as d3 from 'd3-geo';
 
@@ -43,23 +43,22 @@ function ConstellationPage() {
 
   var minMaxMag = d3.extent(starsMag);
   var opacityScale = d3.scaleLinear().domain(minMaxMag).range([1, 0.4]);
-  var magScale = d3.scaleLinear().domain(minMaxMag).range([2.7, 1.7]);
-  
-  // Function to convert RA/DEC to degrees
-  function convert(str) {
-    const [hours, minutes, seconds] = str.split(':').map(parseFloat);
-    const degrees = hours * 15 + minutes / 4 + seconds / 240; // Convert to degrees
-    return str.includes('-') ? -degrees : degrees; // Handle negative values
-  }
+  var magScale = d3.scaleLinear().domain(minMaxMag).range([3.5, 1.1]);
+
 
   // Map star data to canvas object
   var geometries = data.map(function(star) {
     var rgb = d3.rgb('#fff'); // Provide a default color, or use star.color if available
     var rgba = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',' + opacityScale(star.MAG) + ')';
 
+    //calculating star coordinates
+    const coords = starCalc.calcAltAz(starCalc.RAToDeg(star.RA), starCalc.DecToDeg(star.DEC),
+                    starCalc.observerLocation.latitude, starCalc.observerLocation.longitude, 
+                    starCalc.observingDate);
+
     return {
       type: 'Point',
-      coordinates: [convert(star.RA), convert(star.DEC)], // Convert to numbers
+      coordinates: coords, // Convert to numbers
       properties: {
         color: rgba,
         mag: magScale(star.MAG)
@@ -81,10 +80,10 @@ function ConstellationPage() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    var projection = d3.geoStereographic().scale(600)
+    var projection = d3.geoStereographic().translate([window.innerWidth/2, window.innerHeight/2]).scale(600);
     var fixedProjection = d3.geoStereographic().scale(600).rotate([0, 0]) 
     var path = d3.geoPath().projection(projection).context(ctx)
-    var graticule = d3.geoGraticule().step([15, 10])
+    var graticule = d3.geoGraticule().step([15, 20])
 
     function draw(geometries, center) {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -98,20 +97,44 @@ function ConstellationPage() {
       ctx.strokeStyle = "#fff"
       ctx.lineWidth = .25
       ctx.beginPath(); path(graticule()); ctx.stroke();
-
+      
       // Draw stars
+      //stuff to get information on projection
+      //let count = 0;
+      //const visibleStars = [];
       geometries.forEach(function(geo) {
+        /*const coords = projection(geo.coordinates);
+        if(coords[0] >= 0 && coords[0] < window.innerWidth && coords[1] >= 0 && coords[1] < window.innerHeight){
+          count++;
+          visibleStars.push([coords[0].toFixed(1), coords[1].toFixed(1)]);
+        }*/
         ctx.fillStyle = geo.properties.color
         ctx.beginPath();
-        path.pointRadius(geo.properties.mag / 1.5)
+        path.pointRadius(geo.properties.mag)
         path(geo)
         ctx.fill();
         ctx.closePath();
       }
       )
+      /*console.log(count);
+      visibleStars.sort(function(a, b){
+        if(a[0] - b[0] === 0){
+          return a[1] - b[1];
+        }
+        return a[0] - b[0];
+      })
+      //console.log(str);
+      console.log(visibleStars);
+      let str = "";
+      for(let i = 0; i < visibleStars.length; i++){
+        str += "(" + visibleStars[i][0] + ", " + visibleStars[i][1] + "),\n";
+      }
+      console.log(str);
+      console.log("window width: " + window.innerWidth);
+      console.log("window height: " + window.innerHeight);*/
     }
 
-    draw(geometries, [30, -90])
+    draw(geometries, [0, -90])
 
     // Drag functionality
     let raStart, decStart;
@@ -365,10 +388,10 @@ function ConstellationPage() {
   return (
     <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
       <Link to="/" className="home-link">
-        <RiHome2Fill  className="home-icon" />
+        {/* <RiHome2Fill  className="home-icon" /> */}
       </Link>
 
-      <div className='star-menu'>      
+      { <div className='star-menu'>      
         <div className='star-menu-content'>
         <Link to='/drawing' className='small text-btn'>
           <span>Draw new constellation</span>
@@ -380,7 +403,7 @@ function ConstellationPage() {
           <span>View gallery</span>
         </Link>
         </div>
-    </div>
+    </div> }
 
       <canvas
         ref={canvasRef}
