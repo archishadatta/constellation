@@ -9,13 +9,28 @@ import { starData } from "./starCatalog";
 function DrawingPage() {
   const canvRef = useRef(null);
 
+  //handle stars
+  const data = starData.filter(
+    function(star) {
+      return star.MAG < 4;
+  });
+  const stars = data.map(function(star){
+    const coords = starCalc.calcAltAz(starCalc.RAToDeg(star.RA), starCalc.DecToDeg(star.DEC),
+                    starCalc.observerLocation.latitude, starCalc.observerLocation.longitude, 
+                    starCalc.observingDate);
+    return {
+      type: 'Point',
+      coordinates: coords
+    }
+  })
+
   //mouse stuff
   let prevX1 = null, prevY1 = null, prevX2 = null, prevY2 = null;
   let mouseDown = false;
   let wait = false;
 
   //points
-  const points = []; //FILL WITH STARS
+  let points = []; //FILL WITH STARS
   let highlighted = [];
 
   //drawing points
@@ -45,8 +60,16 @@ function DrawingPage() {
     ctx.stroke();
     ctx.closePath();
   }
+  function setUpStars(canvas){
+    const projection = d3.geoStereographic().translate([canvas.width/2, canvas.height/2]).scale(600).rotate([0, -90, 0]);
+    points = stars.map(function(star){
+      const coords = projection(star.coordinates);
+      return { x: coords[0], y: coords[1] };
+    });
+  }
   function drawCanvas(canvas, ctx){
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0,0, canvas.width, canvas.height);
+
     //drawing points
     for(let i = 0; i < points.length; i++){
       if(highlighted.indexOf(points[i]) !== -1){
@@ -67,6 +90,9 @@ function DrawingPage() {
   function directionChange(prevX2, prevY2, prevX1, prevY1, curX, curY){
     let pathLen = Math.sqrt(sqDist(prevX1, prevY1, curX, curY)) + Math.sqrt(sqDist(prevX2, prevY2, prevX1, prevY1));
     let straightPath = Math.sqrt(sqDist(prevX2, prevY2, curX, curY));
+    if(straightPath < 0.01){
+      return 1.25;
+    }
     return pathLen/straightPath;
   }
   function updateHighlight(mouseX, mouseY, threshold){
@@ -101,9 +127,14 @@ function DrawingPage() {
       factor = directionChange(prevX2, prevY2, prevX1, prevY1, mouseX, mouseY);
     }
     let threshold = Math.max(225, 225 * factor * factor);
-    updateHighlight(e.offsetX, e.offsetY, threshold);
+    updateHighlight(mouseX, mouseY, threshold);
 
     //adding points
+    if(drawingPts[curComponent].length > 10000){
+      const lastPt = drawingPts[curComponent][drawingPts[curComponent].length - 1];
+      drawingPts.push([ lastPt ]);
+      curComponent++;
+    }
     drawingPts[curComponent].push({x : mouseX, y: mouseY });
 
     //draw updated canvas
@@ -184,12 +215,14 @@ function DrawingPage() {
     const canv = canvRef.current;
     const ctx = canv.getContext('2d');
 
+    //set up canvas
+    setUpStars(canv);
     canv.onmousedown = handleMouseDown;
     canv.onmouseup = handleMouseUp;
-    canv.onmouseleave = handleMouseUp;
     const moveHandler = function(e){
       handleMouseMove(e, canv, ctx);
     };
+    //canv.addEventListener("mouseout", handleMouseUp);
     canv.addEventListener("mousemove", moveHandler);
     drawCanvas(canv, ctx);
 
@@ -204,7 +237,7 @@ function DrawingPage() {
     return () => {
       canv.removeEventListener("mousedown", handleMouseDown);
       canv.removeEventListener("mouseup", handleMouseUp);
-      canv.removeEventListener("mouseleave", handleMouseUp);
+      //canv.removeEventListener("mouseout", handleMouseUp);
       canv.removeEventListener("mousemove", moveHandler);
       clearBtn.removeEventListener("click", clearHandler);
     };
