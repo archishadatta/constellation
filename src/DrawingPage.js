@@ -9,23 +9,55 @@ import { starData } from "./starCatalog";
 function DrawingPage() {
   const canvRef = useRef(null);
 
+  //handle stars
+  const data = starData.filter(
+    function(star) {
+      return star.MAG < 4;
+  });
+  const stars = data.map(function(star){
+    const coords = starCalc.calcAltAz(starCalc.RAToDeg(star.RA), starCalc.DecToDeg(star.DEC),
+                    starCalc.observerLocation.latitude, starCalc.observerLocation.longitude, 
+                    starCalc.observingDate);
+    return {
+      type: 'Point',
+      coordinates: coords,
+      properties: {
+        mag: star.MAG
+      }
+    }
+  })
+
   //mouse stuff
   let prevX1 = null, prevY1 = null, prevX2 = null, prevY2 = null;
   let mouseDown = false;
   let wait = false;
 
   //points
-  const points = []; //FILL WITH STARS
+  let points = []; //filled with stars later
   let highlighted = [];
 
   //drawing points
   let curComponent = -1;
   let drawingPts = [];
 
+  //some helper math functions
+  function sqDist(x1, y1, x2, y2){
+    return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+  }
+  function linearMap(x, min1, max1, min2, max2){
+    return (x - min1)/(max1 - min1) * (max2 - min2) + min2;
+  }
+
   //canvas drawing functions
-  function plotPoint(ctx, x, y, col="black", s=2){
+  function circle(ctx, x, y, r){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.closePath();
+  }
+  function plotPoint(ctx, x, y, col="black", s=2, glow=false){
     ctx.fillStyle = col;
-    ctx.fillRect(x - s/2, y - s/2, s, s);
+    circle(ctx, x, y, s);
   }
   function plotPath(ctx, pts, col="black", strokeWidth=1){
     if(pts.length === 0){
@@ -36,6 +68,7 @@ function DrawingPage() {
     ctx.strokeStyle = col;
     ctx.lineWidth = strokeWidth;
     for(let i = 0; i < pts.length; i++){
+      if(pts[i].length === 0){ continue; }
       ctx.moveTo(pts[i][0].x, pts[i][0].y);
       for(let j = 1; j < pts[i].length; j++){
         ctx.lineTo(pts[i][j].x, pts[i][j].y);
@@ -44,28 +77,40 @@ function DrawingPage() {
     ctx.stroke();
     ctx.closePath();
   }
+  function setUpStars(canvas){
+    const projection = d3.geoStereographic().translate([canvas.width/2, canvas.height/2]).scale(600).rotate([0, -90, 0]);
+    points = stars.map(function(star){
+      const coords = projection(star.coordinates);
+      return { 
+        x: coords[0], 
+        y: coords[1], 
+        size: linearMap(star.properties.mag, 0, 4, 3, 1)
+      };
+    });
+  }
   function drawCanvas(canvas, ctx){
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0,0, canvas.width, canvas.height);
+
+    //drawing the path
+    plotPath(ctx, drawingPts, "rgba(2, 5, 37, 0.5)");
+
     //drawing points
     for(let i = 0; i < points.length; i++){
       if(highlighted.indexOf(points[i]) !== -1){
-        plotPoint(ctx, points[i].x, points[i].y, "red", 4);
+        plotPoint(ctx, points[i].x, points[i].y, "rgb(121,181,241)", 3.5);
       }
       else {
-        plotPoint(ctx, points[i].x, points[i].y, "blue");
+        plotPoint(ctx, points[i].x, points[i].y, "#020525", points[i].size);
       }
     }
-    
-    //getting drawing?
-    plotPath(ctx, drawingPts);
   }
-
-  function sqDist(x1, y1, x2, y2){
-    return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
-  }
+  
   function directionChange(prevX2, prevY2, prevX1, prevY1, curX, curY){
     let pathLen = Math.sqrt(sqDist(prevX1, prevY1, curX, curY)) + Math.sqrt(sqDist(prevX2, prevY2, prevX1, prevY1));
     let straightPath = Math.sqrt(sqDist(prevX2, prevY2, curX, curY));
+    if(straightPath < 0.01){
+      return 1.25;
+    }
     return pathLen/straightPath;
   }
   function updateHighlight(mouseX, mouseY, threshold){
@@ -89,16 +134,26 @@ function DrawingPage() {
 
   //handling drag for users
   function updateOnDrag(e, canvas, ctx){
+    //get current points
+    const scaleFactor = 1280/canvas.offsetWidth;
+    const mouseX = e.offsetX * scaleFactor;
+    const mouseY = e.offsetY * scaleFactor;
+
     //updating highlighted points
     let factor = 1.2;
     if(drawingPts[curComponent].length >= 2){
-      factor = directionChange(prevX2, prevY2, prevX1, prevY1, e.offsetX, e.offsetY);
+      factor = directionChange(prevX2, prevY2, prevX1, prevY1, mouseX, mouseY);
     }
     let threshold = Math.max(225, 225 * factor * factor);
-    updateHighlight(e.offsetX, e.offsetY, threshold);
+    updateHighlight(mouseX, mouseY, threshold);
 
     //adding points
-    drawingPts[curComponent].push({x : e.offsetX, y: e.offsetY});
+    if(drawingPts[curComponent].length > 10000){
+      const lastPt = drawingPts[curComponent][drawingPts[curComponent].length - 1];
+      drawingPts.push([ lastPt ]);
+      curComponent++;
+    }
+    drawingPts[curComponent].push({x : mouseX, y: mouseY });
 
     //draw updated canvas
     drawCanvas(canvas, ctx);
@@ -106,12 +161,12 @@ function DrawingPage() {
     //updating stuff
     prevX2 = prevX1;
     prevY2 = prevY1;
-    prevX1 = e.offsetX;
-    prevY1 = e.offsetY;
+    prevX1 = mouseX;
+    prevY1 = mouseY;
   }
 
   //reset drawing
-  function reset(){
+  function reset(canvas, ctx){
     prevX2 = null;
     prevY2 = null;
     prevX1 = null;
@@ -122,6 +177,9 @@ function DrawingPage() {
     curComponent = -1;
     mouseDown = false;
     wait = false;
+
+    //redraw cleared canvas
+    drawCanvas(canvas, ctx);
   }
 
   //functions handling mouse movement
@@ -173,23 +231,33 @@ function DrawingPage() {
 
     //canvas
     const canv = canvRef.current;
-    const ctx = canv.getContext("2d");
+    const ctx = canv.getContext('2d');
 
+    //set up canvas
+    setUpStars(canv);
     canv.onmousedown = handleMouseDown;
     canv.onmouseup = handleMouseUp;
-    canv.onmouseleave = handleMouseUp;
     const moveHandler = function(e){
       handleMouseMove(e, canv, ctx);
-    }
+    };
+    //canv.addEventListener("mouseout", handleMouseUp);
     canv.addEventListener("mousemove", moveHandler);
     drawCanvas(canv, ctx);
+
+    //clear canvas
+    const clearBtn = document.getElementById("clear-btn");
+    const clearHandler = function(){
+      reset(canv, ctx);
+    };
+    clearBtn.addEventListener("click", clearHandler);
 
     //clean up event listeners
     return () => {
       canv.removeEventListener("mousedown", handleMouseDown);
       canv.removeEventListener("mouseup", handleMouseUp);
-      canv.removeEventListener("mouseleave", handleMouseUp);
+      //canv.removeEventListener("mouseout", handleMouseUp);
       canv.removeEventListener("mousemove", moveHandler);
+      clearBtn.removeEventListener("click", clearHandler);
     };
   }, []);
 
@@ -201,14 +269,14 @@ function DrawingPage() {
       <div className='drawing'>
         <div className='drawing-sidebar'>
           <p>Draw your constellation here...</p>
-          <button className='text-btn'>
+          <button className='text-btn' id = 'clear-btn'>
               <span>Clear</span>
           </button>
           <Link to='/constellation' className='text-btn'>
                 <span>Map to sky</span>
           </Link>
         </div>
-        <canvas className='drawing-whiteboard' ref = {canvRef}>
+        <canvas className='drawing-whiteboard' ref = {canvRef} width = "1280" height = "675">
 
         </canvas>
       </div>
