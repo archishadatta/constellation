@@ -22,11 +22,15 @@ function GalleryItem(props) {
   });
 
   // make points array from given indices
+  const starDataMag = starData.filter(
+    function(star) {
+      return star.MAG < 4;
+  });
+
   const unnormalized = []
 
-
-props.indices.forEach((index) => {
-  const star = starData[index]; // Get star data at the specified index
+  props.indices.forEach((index) => {
+  const star = starDataMag[index]; // Get star data at the specified index
   if (star) {
       const projection = d3.geoStereographic().translate([1280/2, 675/2]).scale(600).rotate([0, -90, 0]);
 
@@ -47,8 +51,8 @@ props.indices.forEach((index) => {
   const maxY = Math.max(...unnormalized.map(c => c[1]));
   const normalizedCoords = unnormalized.map(coord => {
     // Normalize each coordinate value between 0 and 100
-    const normalizedX = ((coord[0] - minX) / (maxX - minX)) * 100;
-    const normalizedY = ((coord[1] - minY) / (maxY - minY)) * 100;
+    const normalizedX = ((coord[0] - minX) / (maxX - minX)) * 90;
+    const normalizedY = ((coord[1] - minY) / (maxY - minY)) * 90;
 
     return [normalizedX, normalizedY];
 });

@@ -489,9 +489,9 @@ function ConstellationPage(props) {
             <Button className="modal-btn secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button className="modal-btn primary" onClick={handleSubmit}>
+          <Link to="/gallery" className="modal-btn primary" onClick={handleSubmit}>
             Submit
-          </Button>
+          </Link>
         </div>
                
         </div>

@@ -140,6 +140,8 @@ button {
 
 /* GALLERY PAGE */
 .gallery-container {
+  overflow-x: hidden;
+
   min-height: 100vh;
   padding: 5vw;
   box-sizing: border-box;

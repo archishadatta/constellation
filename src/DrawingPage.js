@@ -179,6 +179,8 @@ function DrawingPage(props) {
     highlighted = [];
     drawingPts = [];
     curComponent = -1;
+    indices = []
+    props.setIndicesGlobal([])
     mouseDown = false;
     wait = false;
 
