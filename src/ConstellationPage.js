@@ -2,7 +2,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as d3 from 'd3';
 import { starData } from "./starCatalog";
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { RiHome2Fill  } from 'react-icons/ri'; // Import the home icon
 import { Button, Form } from 'react-bootstrap';
 import * as starCalc from "./starCalculations.mjs";
@@ -10,7 +10,14 @@ import * as starCalc from "./starCalculations.mjs";
 // import * as d3 from 'd3-geo';
 
 
-function ConstellationPage() {
+function ConstellationPage(props) {
+
+  // Use the indices data in your component
+  const indices = props.indicesGlobal.filter((value, index) => {
+    // Keep the first occurrence of each element or elements that are different from their previous element
+    return index === 0 || value !== props.indicesGlobal[index - 1];
+  });
+  console.log("Indices" + indices);
 
   // Modal
   const [showModal, setShowModal] = useState(false);
@@ -24,6 +31,30 @@ function ConstellationPage() {
     // Perform actions with the entered data, like saving it to state or sending it to an API
     console.log('Constellation Name:', constellationName);
     console.log('Author Name:', authorName);
+
+    const newItem = {
+      title: constellationName, // Replace with appropriate ID logic
+      author: authorName,
+      date: new Date(), 
+      indices: indices
+    };
+
+    fetch('http://localhost:7000/add-item', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ newItem }),
+    })
+      .then((response) => response.text())
+      .then((data) => {
+        console.log(data); // Output: Item added successfully
+        // Handle success or update UI if needed
+      })
+      .catch((error) => {
+        console.error('Error adding item:', error);
+      });
+
     handleClose();
   };
 
@@ -114,6 +145,23 @@ function ConstellationPage() {
         path(geo)
         ctx.fill();
         ctx.closePath();
+
+        // Draw path between stars based on indices
+        ctx.strokeStyle = "#white"; // Set line color
+        ctx.lineWidth = 1; // Set line width
+
+        ctx.beginPath();
+        indices.forEach((index, i) => {
+          const star = geometries[index]; // Get star geometry from indices
+          const coords = projection(star.coordinates); // Project star coordinates
+          if (i === 0) {
+            ctx.moveTo(coords[0], coords[1]); // Move to the first star
+          } else {
+            ctx.lineTo(coords[0], coords[1]); // Draw line to subsequent stars
+          }
+  });
+  ctx.stroke(); // Render the line
+
       }
       )
       /*console.log(count);
@@ -382,6 +430,8 @@ function ConstellationPage() {
     window.removeEventListener('resize', resizeCanvas);
   };
 
+  
+
 }
 );
 
@@ -439,9 +489,9 @@ function ConstellationPage() {
             <Button className="modal-btn secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button className="modal-btn primary" onClick={handleSubmit}>
+          <Link to="/gallery" className="modal-btn primary" onClick={handleSubmit}>
             Submit
-          </Button>
+          </Link>
         </div>
                
         </div>

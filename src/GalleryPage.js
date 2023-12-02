@@ -1,205 +1,72 @@
-import {React, useEffect} from 'react';
+import {React, useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import { RiHome2Fill  } from 'react-icons/ri'; // Import the home icon
-
-const stars = [
-  {
-    title: "constellation",
-    author: "archie",
-    date: new Date(),
-    points: [
-      { starname: "Head", x: 0, y: 50 },
-      { starname: "Ear 1", x: 20, y: 80 },
-      { starname: "Ear 2", x: 30, y: 60 },
-      { starname: "Eye 1", x: 70, y: 60 },
-      { starname: "Eye 2", x: 80, y: 80 },
-      { starname: "Nose", x: 100, y: 50 },
-      { starname: "Mouth", x: 90, y: 10 },
-      { starname: "Body", x: 20, y: 10 },
-    ]
-  },
-  {
-    title: "constellation",
-    author: "archie",
-    date: new Date(),
-    points: [
-      { starname: "Head", x: 0, y: 50 },
-      { starname: "Ear 1", x: 20, y: 80 },
-      { starname: "Ear 2", x: 30, y: 60 },
-      { starname: "Eye 1", x: 70, y: 60 },
-      { starname: "Eye 2", x: 80, y: 80 },
-      { starname: "Nose", x: 100, y: 50 },
-      { starname: "Mouth", x: 90, y: 10 },
-      { starname: "Body", x: 20, y: 10 },
-    ]
-  },
-  {
-    title: "constellation",
-    author: "archie",
-    date: new Date(),
-    points: [
-      { starname: "Head", x: 0, y: 50 },
-      { starname: "Ear 1", x: 20, y: 80 },
-      { starname: "Ear 2", x: 30, y: 60 },
-      { starname: "Eye 1", x: 70, y: 60 },
-      { starname: "Eye 2", x: 80, y: 80 },
-      { starname: "Nose", x: 100, y: 50 },
-      { starname: "Mouth", x: 90, y: 10 },
-      { starname: "Body", x: 20, y: 10 },
-    ]
-  },
-  {
-    title: "constellation",
-    author: "archie",
-    date: new Date(),
-    points: [
-      { starname: "Head", x: 0, y: 50 },
-      { starname: "Ear 1", x: 20, y: 80 },
-      { starname: "Ear 2", x: 30, y: 60 },
-      { starname: "Eye 1", x: 70, y: 60 },
-      { starname: "Eye 2", x: 80, y: 80 },
-      { starname: "Nose", x: 100, y: 50 },
-      { starname: "Mouth", x: 90, y: 10 },
-      { starname: "Body", x: 20, y: 10 },
-    ]
-  },
-  {
-    title: "constellation",
-    author: "archie",
-    date: new Date(),
-    points: [
-      { starname: "Head", x: 0, y: 50 },
-      { starname: "Ear 1", x: 20, y: 80 },
-      { starname: "Ear 2", x: 30, y: 60 },
-      { starname: "Eye 1", x: 70, y: 60 },
-      { starname: "Eye 2", x: 80, y: 80 },
-      { starname: "Nose", x: 100, y: 50 },
-      { starname: "Mouth", x: 90, y: 10 },
-      { starname: "Body", x: 20, y: 10 },
-    ]
-  },
-  {
-    title: "constellation",
-    author: "archie",
-    date: new Date(),
-    points: [
-      { starname: "Head", x: 0, y: 50 },
-      { starname: "Ear 1", x: 20, y: 80 },
-      { starname: "Ear 2", x: 30, y: 60 },
-      { starname: "Eye 1", x: 70, y: 60 },
-      { starname: "Eye 2", x: 80, y: 80 },
-      { starname: "Nose", x: 100, y: 50 },
-      { starname: "Mouth", x: 90, y: 10 },
-      { starname: "Body", x: 20, y: 10 },
-    ]
-  },
-  {
-    title: "constellation",
-    author: "archie",
-    date: new Date(),
-    points: [
-      { starname: "Head", x: 0, y: 50 },
-      { starname: "Ear 1", x: 20, y: 80 },
-      { starname: "Ear 2", x: 30, y: 60 },
-      { starname: "Eye 1", x: 70, y: 60 },
-      { starname: "Eye 2", x: 80, y: 80 },
-      { starname: "Nose", x: 100, y: 50 },
-      { starname: "Mouth", x: 90, y: 10 },
-      { starname: "Body", x: 20, y: 10 },
-    ]
-  },
-  {
-    title: "constellation",
-    author: "archie",
-    date: new Date(),
-    points: [
-      { starname: "Head", x: 0, y: 50 },
-      { starname: "Ear 1", x: 20, y: 80 },
-      { starname: "Ear 2", x: 30, y: 60 },
-      { starname: "Eye 1", x: 70, y: 60 },
-      { starname: "Eye 2", x: 80, y: 80 },
-      { starname: "Nose", x: 100, y: 50 },
-      { starname: "Mouth", x: 90, y: 10 },
-      { starname: "Body", x: 20, y: 10 },
-    ]
-  },
-  {
-    title: "constellation",
-    author: "archie",
-    date: new Date(),
-    points: [
-      { starname: "Head", x: 0, y: 50 },
-      { starname: "Ear 1", x: 20, y: 80 },
-      { starname: "Ear 2", x: 30, y: 60 },
-      { starname: "Eye 1", x: 70, y: 60 },
-      { starname: "Eye 2", x: 80, y: 80 },
-      { starname: "Nose", x: 100, y: 50 },
-      { starname: "Mouth", x: 90, y: 10 },
-      { starname: "Body", x: 20, y: 10 },
-    ]
-  },
-  {
-    title: "constellation",
-    author: "archie",
-    date: new Date(),
-    points: [
-      { starname: "Head", x: 0, y: 50 },
-      { starname: "Ear 1", x: 20, y: 80 },
-      { starname: "Ear 2", x: 30, y: 60 },
-      { starname: "Eye 1", x: 70, y: 60 },
-      { starname: "Eye 2", x: 80, y: 80 },
-      { starname: "Nose", x: 100, y: 50 },
-      { starname: "Mouth", x: 90, y: 10 },
-      { starname: "Body", x: 20, y: 10 },
-    ]
-  },
-  {
-    title: "constellation",
-    author: "archie",
-    date: new Date(),
-    points: [
-      { starname: "Head", x: 0, y: 50 },
-      { starname: "Ear 1", x: 20, y: 80 },
-      { starname: "Ear 2", x: 30, y: 60 },
-      { starname: "Eye 1", x: 70, y: 60 },
-      { starname: "Eye 2", x: 80, y: 80 },
-      { starname: "Nose", x: 100, y: 50 },
-      { starname: "Mouth", x: 90, y: 10 },
-      { starname: "Body", x: 20, y: 10 },
-    ]
-  },
-  {
-    title: "constellation",
-    author: "archie",
-    date: new Date(),
-    points: [
-      { starname: "Head", x: 0, y: 50 },
-      { starname: "Ear 1", x: 20, y: 80 },
-      { starname: "Ear 2", x: 30, y: 60 },
-      { starname: "Eye 1", x: 70, y: 60 },
-      { starname: "Eye 2", x: 80, y: 80 },
-      { starname: "Nose", x: 100, y: 50 },
-      { starname: "Mouth", x: 90, y: 10 },
-      { starname: "Body", x: 20, y: 10 },
-    ]
-  },
-]
-
+import { starData } from "./starCatalog";
+import * as starCalc from "./starCalculations.mjs";
+import * as d3 from 'd3';
 
 
 function GalleryItem(props) {
-  const formattedDate = props.date.toLocaleDateString('en-US', {
+  const date = new Date(props.date)
+  const formattedDate = date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
   });
 
-  const formattedTime = props.date.toLocaleTimeString('en-US', {
+  const formattedTime = date.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
     hour12: true,
   });
+
+  // make points array from given indices
+  const starDataMag = starData.filter(
+    function(star) {
+      return star.MAG < 4;
+  });
+
+  const unnormalized = []
+
+  props.indices.forEach((index) => {
+  const star = starDataMag[index]; // Get star data at the specified index
+  if (star) {
+      const projection = d3.geoStereographic().translate([1280/2, 675/2]).scale(600).rotate([0, -90, 0]);
+
+      const coords = projection(starCalc.calcAltAz(starCalc.RAToDeg(star.RA), starCalc.DecToDeg(star.DEC),
+        starCalc.observerLocation.latitude, starCalc.observerLocation.longitude, 
+         starCalc.observingDate));
+
+      //console.log("Coords", coords)
+      unnormalized.push(coords)
+    }
+  });
+  console.log('Unnormalized', unnormalized)
+
+  // normalize coords to be between 0 - 100
+  const minX = Math.min(...unnormalized.map(c => c[0]));
+  const maxX = Math.max(...unnormalized.map(c => c[0]));
+  const minY = Math.min(...unnormalized.map(c => c[1]));
+  const maxY = Math.max(...unnormalized.map(c => c[1]));
+  const normalizedCoords = unnormalized.map(coord => {
+    // Normalize each coordinate value between 0 and 100
+    const normalizedX = ((coord[0] - minX) / (maxX - minX)) * 90;
+    const normalizedY = ((coord[1] - minY) / (maxY - minY)) * 90;
+
+    return [normalizedX, normalizedY];
+});
+console.log('Normalized', normalizedCoords)
+
+  const points = normalizedCoords.map(coord => {
+   return {
+      x: coord[0],
+      y: coord[1],
+    }
+  })
+
+
+  console.log("Points" + points)
 
   const svgWidth = 150;
   const svgHeight = 150;
@@ -212,11 +79,11 @@ function GalleryItem(props) {
       <Link to='/constellation' className='canvas-container'>
         <svg height={svgHeight + 2*svgShift} width={svgWidth + 2*svgShift} className='canvas'>
           <path
-            d={`M${props.points.map(point => `${point.x * svgWidth / 100 + svgShift},${point.y * svgHeight / 100 + svgShift}`).join(' L')} Z`}
+            d={`M${points.map(point => `${point.x * svgWidth / 100 + svgShift},${point.y * svgHeight / 100 + svgShift}`).join(' L')} Z`}
             fill="rgba(255, 255, 255, 0.05)"
             stroke="#E1E4FF"
           />
-          {props.points.map((point, index) => (
+          {points.map((point, index) => (
             <circle
               key={index}
               cx={point.x * svgWidth / 100 + svgShift}
@@ -225,7 +92,7 @@ function GalleryItem(props) {
               fill="#E1E4FF"
             />
           ))}
-          {/* {props.points.map((point, index) => (
+          {/* {points.map((point, index) => (
             <text key={index} x={point.x * svgWidth / 100 + svgShift} y={point.y * svgHeight / 100 + svgShift} dy={point.y < 50 ? -5 : 10} fill="#E1E4FF" fontSize="10" textAnchor="middle">
               {'> '+ point.starname}
             </text>
@@ -240,6 +107,7 @@ function GalleryItem(props) {
 }
 
 function GalleryPage() {
+  const [stars, setJsonData] = useState([]);
   useEffect(() => {
     const container = document.getElementsByClassName('star-bg')[0];
 
@@ -268,7 +136,17 @@ function GalleryPage() {
         star.style.top = `${Math.random() * (containerHeight - 4) + 2}px`;
         container.appendChild(star);
     }
+    fetch('http://localhost:7000/data') // Update URL as per your server setup
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data)
+        setJsonData(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
   }, []);
+
   return (
     <div className='gallery-container star-bg'>
       <Link to="/" className="home-link">
@@ -277,8 +155,11 @@ function GalleryPage() {
       <div id='title2'>Constellation Gallery</div>
       <div className='gallery'>
         {stars.map((item) => {
-          return <GalleryItem key={item.title} title={item.title} author={item.author} date={item.date} points={item.points}></GalleryItem>
+          return <GalleryItem key={item.title} title={item.title} author={item.author} date={item.date} indices={item.indices}></GalleryItem>
         })}
+        {/* {stars.map((item) => (
+          <li key={item.id}>{item.title}, {item.date}, {item.author}, {item.indices[0].x}</li>
+        ))} */}
 
       </div>
       

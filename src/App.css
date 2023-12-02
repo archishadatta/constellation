@@ -107,7 +107,7 @@
 
 .drawing {
   display: grid;
-  grid-template-columns: 25% auto;
+  grid-template-columns: 30% auto;
   height: 100%;
 }
 
@@ -140,6 +140,8 @@ button {
 
 /* GALLERY PAGE */
 .gallery-container {
+  overflow-x: hidden;
+
   min-height: 100vh;
   padding: 5vw;
   box-sizing: border-box;
