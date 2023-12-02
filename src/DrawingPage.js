@@ -1,12 +1,13 @@
-import {React, useEffect, useRef} from 'react';
-import { Link } from 'react-router-dom';
+import {React, useEffect, useRef, useState} from 'react';
+import { Link} from 'react-router-dom';
 import { RiHome2Fill  } from 'react-icons/ri'; // Import the home icon]
 
 import * as starCalc from "./starCalculations.mjs";
 import * as d3 from 'd3';
 import { starData } from "./starCatalog";
 
-function DrawingPage() {
+function DrawingPage(props) {
+
   const canvRef = useRef(null);
 
   //handle stars
@@ -35,6 +36,7 @@ function DrawingPage() {
   //points
   let points = []; //filled with stars later
   let highlighted = [];
+  let indices = [];
 
   //drawing points
   let curComponent = -1;
@@ -129,6 +131,8 @@ function DrawingPage() {
     }
     if(lastPt === null || sqDist(lastPt.x, lastPt.y, points[minInd].x, points[minInd].y) > threshold * 4 || minDist < 100){
       highlighted.push(points[minInd]);
+      indices.push(minInd);
+      props.setIndicesGlobal(indices);
     }
   }
 
@@ -205,6 +209,13 @@ function DrawingPage() {
     }
   }
 
+  // send indices
+  // const history = history();
+
+  const handleLinkClick = () => {
+    
+  };
+
   useEffect(() => {
     const container = document.getElementsByClassName('star-bg')[0];
 
@@ -268,12 +279,12 @@ function DrawingPage() {
       </Link>
       <div className='drawing'>
         <div className='drawing-sidebar'>
-          <p>Draw your constellation here...</p>
+          <p>Connect the dots to draw your constellation</p>
           <button className='text-btn' id = 'clear-btn'>
               <span>Clear</span>
           </button>
-          <Link to='/constellation' className='text-btn'>
-                <span>Map to sky</span>
+          <Link to="/constellation" className='text-btn' onClick={handleLinkClick}>
+            <span>Map to sky</span>
           </Link>
         </div>
         <canvas className='drawing-whiteboard' ref = {canvRef} width = "1280" height = "675">
