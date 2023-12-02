@@ -191,6 +191,7 @@ function DrawingPage() {
   function handleMouseUp(){
     mouseDown = false;
     wait = false;
+    console.log(highlighted);
   }
   function handleMouseDown(){
     mouseDown = true;
