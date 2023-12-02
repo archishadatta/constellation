@@ -118,8 +118,8 @@
 }
 
 .drawing-whiteboard {
-  background-color: #F2F3FF;
-  border-radius: 1vw 0 0 1vw;
+  /* background-color: #F2F3FF;
+  border-radius: 1vw 0 0 1vw; */
   align-self: center;
   display: block;
   width: 100%;

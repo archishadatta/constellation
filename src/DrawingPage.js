@@ -97,15 +97,15 @@ function DrawingPage(props) {
     ctx.clearRect(0,0, canvas.width, canvas.height);
 
     //drawing the path
-    plotPath(ctx, drawingPts, "rgba(2, 5, 37, 0.5)");
+    plotPath(ctx, drawingPts, "#E1E4FF");
 
     //drawing points
     for(let i = 0; i < points.length; i++){
       if(highlighted.indexOf(points[i]) !== -1){
-        plotPoint(ctx, points[i].x, points[i].y, "rgb(121,181,241)", 3.5);
+        plotPoint(ctx, points[i].x, points[i].y, "rgb(121,181,241)", 10);
       }
       else {
-        plotPoint(ctx, points[i].x, points[i].y, "#020525", points[i].size);
+        plotPoint(ctx, points[i].x, points[i].y, "#E1E4FF", points[i].size * 1.5);
       }
     }
   }
@@ -229,28 +229,6 @@ function DrawingPage(props) {
   };
 
   useEffect(() => {
-    const container = document.getElementsByClassName('star-bg')[0];
-
-    // Generate stars and append them to the container
-    for (let i = 0; i < 200; i++) {
-        const star = document.createElement('div');
-        star.classList.add('star');
-
-        // Random size between 0.5px and 2px
-        const size = 1 + Math.random() * 2;
-        star.style.width = `${size}px`;
-        star.style.height = `${size}px`;
-
-        // Random opacity between 0.4 and 1.0
-        const opacity = 0.4 + Math.random() * 0.6;
-        star.style.opacity = opacity;
-        star.style.animationDelay = `${Math.random() * 10}s`;
-
-        // Random positions within the container
-        star.style.left = `${Math.random() * 96 + 2}%`;
-        star.style.top = `${Math.random() * 96 + 2}%`;
-        container.appendChild(star);
-    }
 
     //canvas
     const canv = canvRef.current;
