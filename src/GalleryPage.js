@@ -7,6 +7,11 @@ import * as d3 from 'd3';
 
 
 function GalleryItem(props) {
+
+  const handleSubmit = () => {
+    props.setIndicesGlobal(props.indices)
+  };
+
   const date = new Date(props.date)
   const formattedDate = date.toLocaleDateString('en-US', {
     year: 'numeric',
@@ -76,7 +81,7 @@ console.log('Normalized', normalizedCoords)
     <div className='gallery-item gallery-txt'>      
       <div className='gallery-item-title'>{props.title}</div>
       <div className='gallery-item-content'>
-      <Link to='/constellation' className='canvas-container'>
+      <Link to='/constellation' className='canvas-container' onClick={handleSubmit}>
         <svg height={svgHeight + 2*svgShift} width={svgWidth + 2*svgShift} className='canvas'>
           <path
             d={`M${points.map(point => `${point.x * svgWidth / 100 + svgShift},${point.y * svgHeight / 100 + svgShift}`).join(' L')} Z`}
@@ -106,8 +111,9 @@ console.log('Normalized', normalizedCoords)
   );
 }
 
-function GalleryPage() {
+function GalleryPage(props) {
   const [stars, setJsonData] = useState([]);
+
   useEffect(() => {
     const container = document.getElementsByClassName('star-bg')[0];
 
@@ -155,7 +161,7 @@ function GalleryPage() {
       <div id='title2'>Constellation Gallery</div>
       <div className='gallery'>
         {stars.map((item) => {
-          return <GalleryItem key={item.title} title={item.title} author={item.author} date={item.date} indices={item.indices}></GalleryItem>
+          return <GalleryItem key={item.title} title={item.title} author={item.author} date={item.date} indices={item.indices} setIndicesGlobal={props.setIndicesGlobal}></GalleryItem>
         })}
         {/* {stars.map((item) => (
           <li key={item.id}>{item.title}, {item.date}, {item.author}, {item.indices[0].x}</li>

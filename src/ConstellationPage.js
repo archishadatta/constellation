@@ -103,6 +103,29 @@ function ConstellationPage(props) {
   // Canvas setup
   const canvasRef = useRef(null);
   useEffect(() => {  
+    // update indices to be 0-200
+
+    // change current indices
+    const newItem = {
+      indices: props.indicesGlobal
+    };
+
+    fetch('http://localhost:7000/change-indices', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ newItem }),
+    })
+      .then((response) => response.text())
+      .then((data) => {
+        console.log(data); // Output: Item added successfully
+      })
+      .catch((error) => {
+        console.error('Error adding item:', error);
+      });
+    
+
   const canvas = canvasRef.current;
   const ctx = canvas.getContext('2d'); 
 
@@ -489,9 +512,9 @@ function ConstellationPage(props) {
             <Button className="modal-btn secondary" onClick={handleClose}>
             Close
           </Button>
-          <Link to="/gallery" className="modal-btn primary" onClick={handleSubmit}>
+          <Button className="modal-btn primary" onClick={handleSubmit}>
             Submit
-          </Link>
+          </Button>
         </div>
                
         </div>
